@@ -4,11 +4,9 @@
 
 int main()
 {
-	Game G1;
+	Game G1(sf::Vector2f(1200, 800));
 
 	G1.run();
-
-	G1.render();
 
 	return 0;
 }
