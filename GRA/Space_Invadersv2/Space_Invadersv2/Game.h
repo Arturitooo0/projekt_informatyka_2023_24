@@ -2,17 +2,24 @@
 #include <iostream>
 #include <vector>
 #include<SFML/Graphics.hpp>
-#include "windows.h"
+
 #include <string>
 #include <time.h>
 #include <stdlib.h>
 #include <algorithm>
+#include "Bullet.h"
 
 class Game
 {
 private:
 	/// O OKNIE GRY
-	
+	void StartGame();
+	void PodawanieImienie();
+	void rysowanieImienia();
+	sf::Text NazwaPlayer;
+	std::string imie;
+
+
 	sf::RenderWindow* GameWindow;
 	sf::RenderTexture* RenderGameTexture;
 	sf::Texture GameTexture;
@@ -21,19 +28,56 @@ private:
 	void GamePollEvents();
 
 
+	sf::Texture scoreT;
+	sf::Sprite scoreS;
+	sf::Texture serceT;
+	sf::Sprite serceS;
+	sf::Texture znaczekT;
+	sf::Sprite znaczekS;
+
+	//PUNKTY
+	int Points=0;
+	sf::Text Point;
+	std::string PointString;
+
+	//ZYCIE
+	int Health;
+
+
+
 	/// O PLAYER
 	
 	void initPlayer();
 	sf::Texture PlayerTexture;
 	sf::Sprite PlayerSprite;
 	void PoruszaniePlayer();
-	int maxEnemy;
-	float movementSpeedPlayer;
+
+	
+
+	/// POCISK
+	int resetowany;
+
+	sf::Texture BulletTPlayer;
+	sf::Sprite BulletSPlayer;
+	
+	std::vector<sf::Sprite> ShotedBulletPlayer;
+	
+	void poruszanieBullet();
+	void initBullet();
+
+	//SPEED
+	float movementSpeedPlayer = 10;
+
+	float BulletSpeed = -7;
+
+	float EnemySpeed ;
+	int maxEnemy=6;
 
 
 	/// O ENEMYS
+	
 	void initEnemys();
-	void SpawnEnemy();
+	void SpawnEnemy(float x);
 	void PoruszanieEnemy();
 	sf::Texture EnemyT[4];
 	sf::Sprite EnemyS[4];
@@ -57,18 +101,35 @@ private:
 	void ReczneWybieranieMenu();
 	void Wybieranie(int direction);
 	void RecznieEvents();
-	sf::Text menuTexts[4];///4 STRINGI Z MENU
+	sf::Text menuTexts[5];///4 STRINGI Z MENU
 	int selectedOption; ///WYBRANA OPCJA W DANYM MOMENCIE
-	const int numMenuOptions = 4;///OPCJE Z SWITCHA Z MENU
-	void StartGame();
+	const int numMenuOptions = 5;///OPCJE Z SWITCHA Z MENU
+
+	//AUTOR
+	void Autor();
+	sf::Text Autortext[3];
+
+	///POZIOM TRUDNOSCI
 	void showOption();
+	int poziom_trudnosci = 1;
+	sf::Text tekst1;
+	sf::Text tekst2;
+	sf::Text MenuOptiontext[2];
+	int wybranaopcja;
+	void ReczneWybieranieOpcji_1(const sf::Event::KeyEvent& keyEvent);
+	void ReczneWybieranieMenuOpcji_3();
+	void WybieranieOpcji_2(int direction);
+	
+	//ZAPISY
+
 	void Saves();
 	
 
 public:
-	Game(){}
+	Game();
 	Game(const sf::Vector2f& screenSize) : MenuWindow(new sf::RenderWindow(sf::VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y)), "Space Invaders")), RenderMenuTexture(new sf::RenderTexture()) {
 		initMenuWindow();
+
 	}
 
 	virtual ~Game();
