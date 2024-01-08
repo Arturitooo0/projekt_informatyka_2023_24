@@ -1,14 +1,5 @@
 #include "Game.h"
-#define DEFAULT_BULLET_RESET	5
 
-
-Game::~Game()
-{
-	delete this-> MenuWindow;
-	delete this->RenderMenuTexture;
-	delete this->GameWindow;
-	delete this->RenderGameTexture;
-}
 
 Game::Game()
 {
@@ -19,6 +10,78 @@ void Game::run()
 {
 	this->mainMenuShowing();
 }
+
+void Game::render()
+{
+	this->RenderGameTexture->clear(sf::Color::Black);
+	RenderGameTexture->draw(this->spriteGame);
+	this->RenderGameTexture->display();
+
+	GameWindow->clear();
+	GameWindow->draw(sf::Sprite(RenderGameTexture->getTexture()));
+	GameWindow->draw(znaczekS);
+	renderScore();
+	renderHealth();
+	this->player.renderPlayer(GameWindow);
+	this->enemy.RenderEnemy(GameWindow);
+	for (auto& e : player.ShotedBullet)
+	{
+		e.renderBullet(GameWindow);
+	}
+
+}
+
+void Game::update()
+{
+	if (endgame == false)
+	{
+		player.PoruszaniePlayer();
+		for (auto& e : player.ShotedBullet)
+		{
+			e.poruszanieBullet(enemy.GetPoints(), enemy.getEnemy());
+		}
+		enemy.PoruszanieEnemy(poziom_trudnosci, Points, Health, player.GetPlayer());
+
+		Points = enemy.GetPoints() + player.GetPP();
+		Health = enemy.GetHealth();
+
+		if (Health == 0 || enemy.Czywygrana() ==0 )
+		{
+			endgame = true;
+			if (Health == 0)
+				GameOver();
+			if (enemy.Czywygrana() == 0)
+				WinGame();
+		}
+
+	}
+	
+}
+
+void Game::renderHealth()
+{
+	for (int p = 0; p < Health; p++)
+	{
+		this->serceS.setPosition(5 + 40 * p, 20);
+		this->GameWindow->draw(serceS);
+	}
+}
+
+void Game::renderScore()
+{
+	this->GameWindow->draw(scoreS);
+	this->PointString = std::to_string(Points);
+	this ->Point.setString(PointString);
+	this->Point.setPosition(860, 35);
+	this->Point.setFont(font);
+	this->Point.setCharacterSize(60);
+	this->Point.setCharacterSize(27);
+	this->Point.setFillColor(sf::Color::Yellow);
+	this->GameWindow->draw(this->Point);
+}
+
+
+///
 
 void Game::initMenuWindow()///Tworzenie Tekstow do menu i tekstury
 {
@@ -146,178 +209,6 @@ void Game::ReczneWybieranieMenu()///Gdzie ka¿da z opcji przekierowuje
 	}
 }
 
-void Game::initPlayer()
-{
-	if (!this->PlayerTexture.loadFromFile("statek_mysliwiec .png"))
-	{
-		std::cerr << "FAILED LOADING" << std::endl;
-	}
-
-	this->PlayerSprite.setTexture(this->PlayerTexture, true);
-	this->PlayerSprite.scale(0.24f, 0.24f);
-	this->PlayerSprite.setPosition(380, 860);
-}
-
-void Game::PoruszaniePlayer()
-{
-	;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-	{
-		if(PlayerSprite.getPosition().x + 10.0f < 800.0f)
-			PlayerSprite.move(movementSpeedPlayer, 0);
-	}
-
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	{
-		if (PlayerSprite.getPosition().x - 10.0f > -70.0f)
-			PlayerSprite.move(-movementSpeedPlayer,0);
-		
-	}
-
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-	{
-		if (PlayerSprite.getPosition().y - 10.0f >= 0.0f)
-			PlayerSprite.move(0, -movementSpeedPlayer);
-	}
-
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	{
-		if (PlayerSprite.getPosition().y + 10.0f <= 850.0f)
-			PlayerSprite.move(0,movementSpeedPlayer);
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && resetowany ==0)
-	{
-		Bullet pocisk(PlayerSprite.getPosition().x+35 , PlayerSprite.getPosition().y + 15, BulletTPlayer,&ShotedBulletPlayer);
-		this->resetowany = DEFAULT_BULLET_RESET;
-
-	}
-}
-
-void Game::initBullet()
-{
-	if (!BulletTPlayer.loadFromFile("pocisk2.png"))
-	{
-		std::cerr << "FAILED LOADING" << std::endl;
-	}
-
-}
-
-void Game::poruszanieBullet()
-{
-	for (int i = 0; i < ShotedBulletPlayer.size(); i++)
-	{
-		ShotedBulletPlayer[i].move(0, BulletSpeed);
-
-		if (ShotedBulletPlayer[i].getPosition().y < 2.f)
-		{
-			ShotedBulletPlayer.erase(ShotedBulletPlayer.begin() + i);
-			continue;
-		}
-	
-		for (int j = 0; j < SpawnedEnemys.size(); j++)
-		{
-			if (ShotedBulletPlayer[i].getGlobalBounds().intersects(SpawnedEnemys[j].getGlobalBounds()))
-			{
-				ShotedBulletPlayer.erase(ShotedBulletPlayer.begin() + i);
-				SpawnedEnemys.erase(SpawnedEnemys.begin() + j);
-				Points = Points+10;
-				break;
-			}
-			
-		}
-		
-	}
-}
-
-void Game::initEnemys()
-{
-	std::string  filename;
-
-	if (poziom_trudnosci == 1)
-	{
-		EnemySpeed = 7;//0.1
-		 maxEnemy = 4;
-		 Health = 4;
-	}
-
-	if (poziom_trudnosci == 2)
-	{
-		EnemySpeed = 9;//0.2
-		maxEnemy = 6;
-		Health = 2;
-	}
-	for (int i = 1; i < 5; i++)
-	{
-
-		filename = "wrog" + std::to_string(i) + ".png";
-		if (!EnemyT[i - 1].loadFromFile(filename))
-		{
-			std::cerr << "FAILED LOADING" << std::endl;
-		}
-
-		EnemyS[i - 1].setTexture(EnemyT[i - 1], true);
-		EnemyS[i-1].scale(0.5f, 0.5f);
-
-		EnemySprites.push_back(EnemyS[i-1]);
-	}	
-}
-
-void Game::SpawnEnemy(float x)
-{
-	
-	 type = rand() % 4;
-
-
-	switch (type)
-	{
-	case 0:
-		this->EnemySprites[0].setPosition(x, 30.0f);
-		break;
-	case 1:
-		this->EnemySprites[1].setPosition(x, 30.0f);
-		break;
-	case 2:
-		this->EnemySprites[2].setPosition(x, 30.0f);
-		break;
-	case 3:
-		this->EnemySprites[3].setPosition(x, 30.0f);
-		break;
-	}
-	SpawnedEnemys.push_back(EnemySprites[type]);
-}
-
-void Game::PoruszanieEnemy()
-{
-	if (SpawnedEnemys.size() < maxEnemy)
-	{
-		x += 100;
-		if (x > 800 )
-			x = 0;
-		SpawnEnemy(x);
-	}
-	for (int i = 0; i < SpawnedEnemys.size(); i++)
-	{
-		SpawnedEnemys[i].move(0, EnemySpeed);
-		if (SpawnedEnemys[i].getPosition().y > 950)
-		{
-			x = SpawnedEnemys[i].getPosition().x;
-			this->SpawnedEnemys.erase(SpawnedEnemys.begin()+i);
-			Points = Points - 5;
-		}
-
-		if (SpawnedEnemys[i].getGlobalBounds().intersects(PlayerSprite.getGlobalBounds()))
-		{
-			Health--;
-			this->SpawnedEnemys.erase(SpawnedEnemys.begin() + i);
-			Points = Points + 10;
-		}
-	}
-}
-
 void Game::initGameWindow()
 {
 	this->GameWindow = new sf::RenderWindow(sf::VideoMode(950, 1000), "", sf::Style::Close | sf::Style::Titlebar);
@@ -387,63 +278,31 @@ void Game::GamePollEvents()
 
 void Game::StartGame()
 {
-	rysowanieImienia();
+
+	if (poziom_trudnosci == 1)
+	{
+		Health = 4;
+	}
+	if (poziom_trudnosci == 2)
+	{
+		Health = 2;
+	}
 
 	font.loadFromFile("Arial.ttf");
 	this->MenuWindow->close();
-	
 	initGameWindow();
-	initPlayer();
-	initBullet();
-	initEnemys();
+	
 
 	while (GameWindow->isOpen())
 	{
 		
-		if (resetowany > 0 )
+		if (player.getRecoil() > 0)
 		{
-			resetowany--;
+			player.odejmujrecoil();
 		}
+		update();
 
-		PoruszaniePlayer();
-		PoruszanieEnemy();
-		poruszanieBullet();
-		this->RenderGameTexture->clear(sf::Color::Black);
-		RenderGameTexture->draw(this->spriteGame);
-		
-		this->RenderGameTexture->display();
-
-		GameWindow->clear();
-		GameWindow->draw(sf::Sprite(RenderGameTexture->getTexture()));
-		
-		GameWindow->draw(scoreS);
-		PointString = std::to_string(Points);
-		Point.setString(PointString);
-		Point.setPosition(860, 35);
-		Point.setFont(font);
-		Point.setCharacterSize(60);
-		Point.setCharacterSize(27);
-		Point.setFillColor(sf::Color::Yellow);
-		GameWindow->draw(Point);
-
-		GameWindow->draw(znaczekS);
-		for (int p = 0; p < Health; p++)
-		{
-			serceS.setPosition(5 + 40 * p, 20);
-			GameWindow->draw(serceS);
-		}
-		GameWindow->draw(sf::Sprite(PlayerSprite));
-
-		for (auto& w : ShotedBulletPlayer)
-		{
-			GameWindow->draw(sf::Sprite(w));
-		}
-		
-		for (auto& v : SpawnedEnemys)
-		{
-			GameWindow->draw(sf::Sprite(v));
-		}
-
+		render();
 
 		GameWindow->display();
 		
@@ -455,8 +314,6 @@ void Game::StartGame()
 void Game::PodawanieImienie()
 {
 	
-
-	
 	NazwaPlayer.setFont(font);
 	NazwaPlayer.setCharacterSize(24);
 	NazwaPlayer.setPosition(300.f, 300.f);
@@ -466,36 +323,42 @@ void Game::PodawanieImienie()
 
 	while (!wprowadzaneimie)
 	{
-		sf::Event event;
-		while (MenuWindow->pollEvent(event))
+		sf::Event ww;
+		while (MenuWindow->pollEvent(ww))
 		{
-			if (event.type == sf::Event::TextEntered)
+			if (ww.type == sf::Event::TextEntered)
 			{
-				if (event.text.unicode < 128)
+				if (ww.text.unicode < 128)
 				{
-					imie += static_cast<char>(event.text.unicode);
+					imie += static_cast<char>(ww.text.unicode);
 					NazwaPlayer.setString("Player name : " + imie);
+					rysowanieImienia();
 				}
 			}
-			else if (event.type == sf::Event::KeyPressed)
+			 else if (ww.type == sf::Event::KeyPressed)
 			{
-				if (event.key.code == sf::Keyboard::Enter)
+				if (ww.key.code == sf::Keyboard::Enter)
 				{
-					wprowadzaneimie = 1;
+					wprowadzaneimie ++;
+					MenuWindow->close();
+					StartGame();
+					
 				}
 			}
 		}
 	}
+	
 
 }
 
 void Game::rysowanieImienia()
 {
+	RenderMenuTexture->clear(sf::Color::Black);
+	MenuWindow->draw(Menusprite);
 	while (MenuWindow->isOpen())
 	{
 		RenderMenuTexture->clear(sf::Color::Black);
 		MenuWindow->draw(Menusprite);
-		PodawanieImienie();
 		MenuWindow->draw(NazwaPlayer);
 		MenuWindow->display();
 	}
@@ -546,6 +409,15 @@ void Game::Autor()
 				this->mainMenuShowing();
 		}
 	}
+}
+
+
+void Game::GameOver()
+{
+}
+
+void Game::WinGame()
+{
 }
 
 void Game::showOption()
@@ -666,4 +538,13 @@ void Game::WybieranieOpcji_2(int direction)
 
 void Game::Saves()
 {
+}
+
+
+Game::~Game()
+{
+	delete this->MenuWindow;
+	delete this->RenderMenuTexture;
+	delete this->GameWindow;
+	delete this->RenderGameTexture;
 }

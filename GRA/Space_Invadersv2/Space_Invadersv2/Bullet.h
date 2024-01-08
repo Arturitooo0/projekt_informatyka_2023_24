@@ -1,15 +1,29 @@
 #pragma once
-#include "Game.h"
+#include<SFML/Graphics.hpp>
+#include <iostream>
 
 
 class Bullet
 {
 private:
-	sf::Sprite BulletSprite;
+
+	
+	sf::Sprite BulletS;
+	std::vector<sf::Sprite> ShotedBulletPlayer;
+	float BulletSpeed = -0.1;
+	int Punkty;
+
 	
 public:
-	Bullet(float pozx, float pozy,const sf::Texture& textureBullet, std::vector<sf::Sprite> *wector);
+	
+
+	Bullet();
+	Bullet(sf::Vector2f,sf::Texture pociskT);
+	void renderBullet(sf::RenderWindow* window);
+	int PointsBack();
 	sf::Sprite getSprite() const;
+	void poruszanieBullet(int Points, std::vector<sf::Sprite>& Enemy);
+	void initBullet(sf::Vector2f,sf::Texture BulletT);
 	~Bullet();
 
 };
