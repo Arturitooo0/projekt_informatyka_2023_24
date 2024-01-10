@@ -8,22 +8,19 @@ class Bullet
 private:
 
 	
-	sf::Sprite BulletS;
-	std::vector<sf::Sprite> ShotedBulletPlayer;
-	float BulletSpeed = -0.1;
-	int Punkty;
+	
+	sf::CircleShape kula();
+	float BulletSpeed = -14;
 
 	
 public:
 	
 
 	Bullet();
-	Bullet(sf::Vector2f,sf::Texture pociskT);
+	std::vector<sf::CircleShape> ShotedBulletPlayer;
+	Bullet(sf::Vector2f);
 	void renderBullet(sf::RenderWindow* window);
-	int PointsBack();
-	sf::Sprite getSprite() const;
-	void poruszanieBullet(int Points, std::vector<sf::Sprite>& Enemy);
-	void initBullet(sf::Vector2f,sf::Texture BulletT);
+	void poruszanieBullet(int *Points, std::vector<sf::Sprite>& Enemy);
 	~Bullet();
 
 };

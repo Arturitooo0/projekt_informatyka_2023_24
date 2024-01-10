@@ -1,6 +1,7 @@
 #pragma once
 #include<SFML/Graphics.hpp>
 #include "Bullet.h"
+
 #include <iostream>
 class Enemy
 {
@@ -11,23 +12,19 @@ private:
 	std::vector<sf::Sprite> SpawnedEnemys;
 	int type;
 	float x;
-	int Zdrowie;
-	int Punkty;
-	int Wygrana = 30;
+	
 	float EnemySpeed;
 	int maxEnemy ;
 
 public:
 	Enemy();
 	~Enemy();
+	
 	Bullet pocisk;
-	std::vector<sf::Sprite>& getEnemy();
-	int Czywygrana();
-	int GetPoints();
-	int GetHealth();
+	std::vector<sf::Sprite> &getEnemy();
 	void RenderEnemy(sf::RenderWindow* window);
 	void initEnemys();
 	void SpawnEnemy(float x);
-	void PoruszanieEnemy(int poziom_trudnosci, int Points, int Health,sf::Sprite Player);
+	void PoruszanieEnemy(int poziom_trudnosci,int *ilespawnedenemy, int *Points, int *Health,sf::Sprite Player);
 };
 

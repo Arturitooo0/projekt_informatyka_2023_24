@@ -1,19 +1,9 @@
 #include "Bullet.h"
 
 
-sf::Sprite Bullet::getSprite() const
-{
-	return sf::Sprite(BulletS);
-}
 
-int Bullet::PointsBack()
+void Bullet::poruszanieBullet(int *Points, std::vector<sf::Sprite>& Enemy)
 {
-	return Punkty;
-}
-
-void Bullet::poruszanieBullet(int Points, std::vector<sf::Sprite>& Enemy)
-{
-	Punkty = Points;
 	
 	for (int i = 0; i < ShotedBulletPlayer.size(); i++)
 	{
@@ -31,7 +21,7 @@ void Bullet::poruszanieBullet(int Points, std::vector<sf::Sprite>& Enemy)
 			{
 				ShotedBulletPlayer.erase(ShotedBulletPlayer.begin() + i);
 				Enemy.erase(Enemy.begin() + j);
-				Punkty = Punkty + 10;
+				*Points = *Points + 10;
 				break;
 			}
 
@@ -46,13 +36,15 @@ Bullet::Bullet()
 
 }
 
-Bullet::Bullet(sf::Vector2f wektor,sf::Texture pociskT)
+Bullet::Bullet(sf::Vector2f wektor)
 {
-	this->BulletS.setTexture(pociskT);
-
-	this->BulletS.scale(0.7, 0.7);
-	this->BulletS.setPosition(wektor.x, wektor.y);
-	this->ShotedBulletPlayer.push_back(BulletS);
+	sf::CircleShape kula(4); 
+	kula.setFillColor(sf::Color(255, 180, 0));
+	kula.setOutlineThickness(3);
+	kula.setOutlineColor(sf::Color::Red);
+	kula.setPosition(wektor.x, wektor.y);
+	this->ShotedBulletPlayer.push_back(kula);
+	
 
 }
 

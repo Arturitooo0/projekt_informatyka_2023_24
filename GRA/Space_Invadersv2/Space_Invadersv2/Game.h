@@ -28,6 +28,16 @@ private:
 	sf::Texture znaczekT;
 	sf::Sprite znaczekS;
 
+	///MENU W GRZE
+	sf::Text howPlay;
+	int wybranastop;
+	bool wstrzymana = false;
+	sf::RenderWindow* GameMenu;
+	sf::Text Gamemenu[2];
+	sf::Texture GameMenuTexture;
+	sf::Sprite GameMenuSprite;
+
+
 	//PUNKTY
 	int Points=0;
 	sf::Text Point;
@@ -44,6 +54,8 @@ private:
 	
 	///END GAME
 	bool endgame = false;
+	int ileSpawnedEnemy = 60;
+
 
 
 	/// O ENEMYS
@@ -77,16 +89,33 @@ private:
 	void Saves();
 	
 
+	///GAME OVER i WIN
+	sf::Text OVER[2];
+	
+	int wybranaover;
+	sf::Texture GameOverT;
+	sf::Sprite GameOverS;
+
+	sf::Texture winT;
+	sf::Sprite winS;
+
+
+
 public:
 	Game();
 	virtual ~Game();
-	Game(const sf::Vector2f& screenSize) : MenuWindow(new sf::RenderWindow(sf::VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y)), "Space Invaders")), RenderMenuTexture(new sf::RenderTexture()) {
-		initMenuWindow();
-	}
+	
 
+	void stop();
+	void stop1(const sf::Event::KeyEvent& keyEvent);
+	void stop2(int direction);
+	void stop3();
 
 
 	void GameOver();
+	void over1(const sf::Event::KeyEvent& keyEvent);
+	void over2(int direction);
+	void over3();
 
 	void WinGame();
 
@@ -97,7 +126,7 @@ public:
 	void Autor();
 
 	void StartGame();
-
+	bool czyresetowany = false;
 	///PODAWANIE NAZWY GRACZA
 	void PodawanieImienie();
 	void rysowanieImienia();
@@ -118,6 +147,8 @@ public:
 	void RecznieEvents();
 
 	void run();
+
+	void resetowanieUstawien();
 
 	///RYSOWANIE
 	void renderHealth();

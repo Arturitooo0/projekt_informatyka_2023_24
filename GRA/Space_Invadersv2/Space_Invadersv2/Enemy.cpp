@@ -12,7 +12,8 @@ Enemy::~Enemy()
 
 void Enemy::initEnemys()
 {
-	
+	this->SpawnedEnemys.clear();
+	this->EnemySprites.clear();
 
 	std::string  filename;
 
@@ -56,31 +57,30 @@ void Enemy::SpawnEnemy(float x)
 	SpawnedEnemys.push_back(EnemySprites[type]);
 }
 
-void Enemy::PoruszanieEnemy(int poziom_trudnosci, int Points,int Health,sf::Sprite Player)
-{
-	Punkty = Points+ pocisk.PointsBack() ;
-	Zdrowie = Health;
+void Enemy::PoruszanieEnemy(int poziom_trudnosci, int *ilespawnedenemy, int* Points, int* Health, sf::Sprite Player){
+	
+	
 	if (poziom_trudnosci == 1)
 	{
-		EnemySpeed = 0.1;//0.1
-		maxEnemy = 4;
+		EnemySpeed = 3;
+		maxEnemy = 6;
 
 	}
 
 	if (poziom_trudnosci == 2)
 	{
-		EnemySpeed = 0.2;//0.2
-		maxEnemy = 6;
+		EnemySpeed = 6;
+		maxEnemy = 8;
 
 	}
 
-	if (SpawnedEnemys.size() < maxEnemy && Wygrana >0)
+	if (SpawnedEnemys.size() < maxEnemy && *ilespawnedenemy >0)
 	{
 		x += 100;
 		if (x > 800)
 			x = 0;
 		SpawnEnemy(x);
-		Wygrana--;
+		*ilespawnedenemy= *ilespawnedenemy-1;
 	}
 	for (int i = 0; i < SpawnedEnemys.size(); i++)
 	{
@@ -89,36 +89,22 @@ void Enemy::PoruszanieEnemy(int poziom_trudnosci, int Points,int Health,sf::Spri
 		{
 			x = SpawnedEnemys[i].getPosition().x;
 			this->SpawnedEnemys.erase(SpawnedEnemys.begin() + i);
-			Punkty = Punkty - 5;
+			*Points = *Points - 5;
 		}
 
 		if (SpawnedEnemys[i].getGlobalBounds().intersects(Player.getGlobalBounds()))
 		{
-			Zdrowie--;
+			*Health=*Health -1 ;
 			this->SpawnedEnemys.erase(SpawnedEnemys.begin() + i);
-			Punkty = Punkty +10;
+			*Points = *Points +10;
 		}
 	}
 }
 
-int Enemy::Czywygrana()
-{
-	return Wygrana;
-}
 
-std::vector<sf::Sprite>& Enemy::getEnemy()
+std::vector<sf::Sprite> &Enemy::getEnemy()
 {
 	return SpawnedEnemys;
-}
-
-int Enemy::GetPoints()
-{
-	return Punkty;
-}
-
-int Enemy::GetHealth()
-{
-	return Zdrowie;
 }
 
 void Enemy::RenderEnemy(sf::RenderWindow* window)
