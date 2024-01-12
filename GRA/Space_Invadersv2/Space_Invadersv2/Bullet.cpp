@@ -19,6 +19,7 @@ void Bullet::poruszanieBullet(int *Points, std::vector<sf::Sprite>& Enemy)
 		{
 			if (ShotedBulletPlayer[i].getGlobalBounds().intersects(Enemy[j].getGlobalBounds()))
 			{
+				
 				ShotedBulletPlayer.erase(ShotedBulletPlayer.begin() + i);
 				Enemy.erase(Enemy.begin() + j);
 				*Points = *Points + 10;

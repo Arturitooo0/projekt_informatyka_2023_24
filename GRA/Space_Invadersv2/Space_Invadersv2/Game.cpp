@@ -3,6 +3,7 @@
 
 Game::Game()
 {
+	
 	initMenuWindow();
 }
 
@@ -17,6 +18,8 @@ void Game::resetowanieUstawien()
 {
 	
 	Points = 0;
+	
+	ktora_animacja = 0;
 	enemy.getEnemy().clear();
 	enemy.pocisk.ShotedBulletPlayer.clear();
 	endgame = false;
@@ -39,7 +42,10 @@ void Game::render()
 	GameWindow->draw(znaczekS);
 	renderScore();
 	renderHealth();
-	this->player.renderPlayer(GameWindow);
+
+	if(Health>0)
+		this->player.renderPlayer(GameWindow);
+
 	this->enemy.RenderEnemy(GameWindow);
 	for (auto& e : player.ShotedBullet)
 	{
@@ -102,7 +108,7 @@ void Game::initMenuWindow()///Tworzenie Tekstow do menu i tekstury
 	font.loadFromFile("Emulogic-zrEw.ttf");
 	
 	menuTexts[0].setString("Start Game");
-	menuTexts[1].setString("Saves");
+	menuTexts[1].setString("Scoreboard");
 	menuTexts[2].setString("Options");
 	menuTexts[3].setString("Autor");
 	menuTexts[4].setString("Exit");
@@ -126,6 +132,7 @@ void Game::initMenuWindow()///Tworzenie Tekstow do menu i tekstury
 	}
 
 	Menusprite.setTexture(MenuTexture,true);
+	gwiazda();
 }
 
 void Game::mainMenuShowing()
@@ -143,8 +150,39 @@ void Game::mainMenuShowing()
 			MenuWindow->draw(menuTexts[i]);
 		}
 
+		for (int j = 0; j < 5; j++)
+		{
+			MenuWindow->draw(tablicaGwiazd[j]);
+		}
+		
 		MenuWindow->display();
 	}
+}
+
+void Game::gwiazda()
+{
+	gwiazdka.setPointCount(liczbaWierzcho³ków * 2);
+	for (int i = 0; i < liczbaWierzcho³ków * 2; i++)
+	{
+		katRamienia = i * 2 * 3.14159 / (liczbaWierzcho³ków * 2);
+		kat = (i % 2 == 0) ? katzwene : katWewn;
+		x = kat * std::cos(katRamienia);
+		y = kat * std::sin(katRamienia);
+
+		gwiazdka.setPoint(i, sf::Vector2f(x, y));
+	}
+	gwiazdka.setFillColor(sf::Color::Yellow);
+	gwiazdka.setScale(0.2, 0.2);
+	
+	for (int j = 0; j < 5; j++)
+	{
+		tablicaGwiazd[j] = gwiazdka;
+	}
+	tablicaGwiazd[0].setPosition(830, 210);
+	tablicaGwiazd[1].setPosition(950, 230);
+	tablicaGwiazd[2].setPosition(1050, 150);
+	tablicaGwiazd[3].setPosition(1150, 100);
+	tablicaGwiazd[4].setPosition(1100, 180);
 }
 
 void Game::RecznieEvents()
@@ -201,7 +239,8 @@ void Game::ReczneWybieranieMenu()///Gdzie ka¿da z opcji przekierowuje
 	switch (selectedOption)
 	{
 	case 0:
-		StartGame();
+		
+		PodawanieImienie();
 		break ;
 
 	case 1:
@@ -216,6 +255,7 @@ void Game::ReczneWybieranieMenu()///Gdzie ka¿da z opcji przekierowuje
 		Autor();
 		break;
 	case 4:
+		
 		MenuWindow->close();
 
 	default:
@@ -228,35 +268,35 @@ void Game::ReczneWybieranieMenu()///Gdzie ka¿da z opcji przekierowuje
 void Game::Autor()
 {
 
-	RenderMenuTexture->clear(sf::Color::Black);
-	MenuWindow->draw(Menusprite);
+	this->RenderMenuTexture->clear(sf::Color::Black);
+	this->MenuWindow->draw(Menusprite);
 
-	Autortext[0].setString("- Artur Wesierski -");
-	Autortext[1].setString(" ARISS (3 sem) Grupa 5 ");
-	Autortext[2].setString(" PRESS [ESC] TO BACK TO MENU");
+	this->Autortext[0].setString("- Artur Wesierski -");
+	this->Autortext[1].setString(" ARISS (3 sem) Grupa 5 ");
+	this->Autortext[2].setString(" PRESS [ESC] TO BACK TO MENU");
 
 	for (int i = 0; i < 3; ++i) {
-		Autortext[i].setFont(font);
-		Autortext[i].setCharacterSize(20);
-		Autortext[i].setPosition(100.0f, 259.0f + i * 60.0f);
-		Autortext[i].setFillColor(sf::Color::White);
+		this->Autortext[i].setFont(font);
+		this->Autortext[i].setCharacterSize(20);
+		this->Autortext[i].setPosition(100.0f, 259.0f + i * 60.0f);
+		this->Autortext[i].setFillColor(sf::Color::White);
 	}
-	Autortext[2].setCharacterSize(18);
+	this->Autortext[2].setCharacterSize(18);
 	sf::Event e;
-	while (MenuWindow->isOpen())
+	while (this->MenuWindow->isOpen())
 	{
 
 
-		RenderMenuTexture->clear(sf::Color::Black);
+		this->RenderMenuTexture->clear(sf::Color::Black);
 
-		MenuWindow->draw(Menusprite);
+		this->MenuWindow->draw(Menusprite);
 
 		for (int i = 0; i < 3; ++i)
 		{
-			MenuWindow->draw(Autortext[i]);
+			this->MenuWindow->draw(Autortext[i]);
 		}
 
-		MenuWindow->display();
+		this->MenuWindow->display();
 
 
 		while (this->MenuWindow->pollEvent(e))
@@ -271,6 +311,57 @@ void Game::Autor()
 	}
 }
 
+void Game::zapisPlayer()
+{
+		std::ofstream zapis("dane1.txt" ,std::ios::app);
+	
+		zapis.seekp(0, std::ios::beg);
+		zapis << Gracze[ilePlayer-1].Name;
+		zapis << Gracze[ilePlayer-1].IlePunktow;
+
+		zapis.close();
+	
+	
+}
+
+void Game::odzczytPlayer()
+{
+	Nazwy.clear();
+	Punkty.clear();
+	std::ifstream plik;
+	plik.open("dane1.txt");
+	int punkt;
+	std::string imie;
+	while (true)
+	{
+		plik >> imie;
+		plik >> punkt;
+		Nazwy.push_back(imie);
+		Punkty.push_back(punkt);
+
+		if (plik.fail())
+			break;
+	}
+
+	for (int i = 0; i < 5; ++i)
+	{
+		Imiona[i].setString(Nazwy[Nazwy.size() - (i+2 )]);
+		PunktyGraczy[i].setString(std::to_string(Punkty[Punkty.size() - (i+2 )]));
+	}
+}
+
+zapisywanie* Game::zwiekszTablice(zapisywanie* staraTablica)
+{
+	zapisywanie* NowaTablica = new zapisywanie[ilePlayer];
+
+	for (int i = 0; i < ilePlayer - 1; i++)
+	{
+		NowaTablica[i] = staraTablica[i];
+	}
+	delete[] staraTablica;
+
+	return NowaTablica;
+}
 
 void Game::showOption()
 {
@@ -388,67 +479,132 @@ void Game::WybieranieOpcji_2(int direction)
 
 }
 
-
-
 void Game::Saves()
 {
-}
+	odzczytPlayer();
 
+	RenderMenuTexture->clear(sf::Color::Black);
+	MenuWindow->draw(Menusprite);
+
+	
+
+	for (int i = 0; i < 5; i++) {
+		Imiona[i].setFont(font);
+		Imiona[i].setCharacterSize(15);
+		Imiona[i].setPosition(250.0f, 200.0f + i * 60.0f);
+		Imiona[i].setFillColor(sf::Color::White);
+		PunktyGraczy[i].setFont(font);
+		PunktyGraczy[i].setCharacterSize(15);
+		PunktyGraczy[i].setPosition(530.0f, 200.0f + i * 60.0f);
+		PunktyGraczy[i].setFillColor(sf::Color::White);
+	}
+	
+	SaveTexts[0].setString("PLAYERS");
+	SaveTexts[1].setString("SCORES");
+	SaveTexts[2].setString("PRESS [ESC] TO BACK TO MENU");
+	for (int i = 0; i < 3; i++)
+	{
+		SaveTexts[i].setFont(font);
+		SaveTexts[i].setCharacterSize(19);
+		SaveTexts[i].setPosition(250.0f+(i*250), 110);
+		SaveTexts[i].setFillColor(sf::Color::Red);
+	}
+	SaveTexts[2].setPosition(210.0f , 550);
+	SaveTexts[2].setFillColor(sf::Color::White);
+	sf::Event e;
+	while (MenuWindow->isOpen())
+	{
+
+
+		RenderMenuTexture->clear(sf::Color::Black);
+
+		MenuWindow->draw(Menusprite);
+
+		for (int i = 0; i < 5; ++i)
+		{
+			MenuWindow->draw(Imiona[i]);
+			MenuWindow->draw(PunktyGraczy[i]);
+
+		}
+		for (int j = 0; j < 3; j++)
+		{
+			MenuWindow->draw(SaveTexts[j]);
+		}
+		MenuWindow->display();
+
+
+		while (this->MenuWindow->pollEvent(e))
+		{
+			if (e.Event::type == sf::Event::Closed)
+			{
+				this->MenuWindow->close();
+			}
+			if (e.Event::KeyPressed && e.Event::key.code == sf::Keyboard::Escape)
+				this->mainMenuShowing();
+		}
+	}
+
+	
+}
 
 ///PODAWANIE NAZWY GRACZA
 void Game::PodawanieImienie()
 {
+	
 
+	ilePlayer++;
+	if(ilePlayer>1)
+		Gracze = zwiekszTablice(Gracze);
+
+	NazwaPlayer.setString("");
+	imie = "";
+	RenderMenuTexture->clear(sf::Color::Black);
+	MenuWindow->draw(Menusprite);
+
+	wprowadzaneimie = true;
 	NazwaPlayer.setFont(font);
-	NazwaPlayer.setCharacterSize(24);
-	NazwaPlayer.setPosition(300.f, 300.f);
+	NazwaPlayer.setCharacterSize(19);
+	NazwaPlayer.setPosition(330.f, 400.f);
 	NazwaPlayer.setFillColor(sf::Color::White);
 
-	int wprowadzaneimie = 0;
-
-	while (!wprowadzaneimie)
-	{
-		sf::Event ww;
-		while (MenuWindow->pollEvent(ww))
+		while (wprowadzaneimie == true)
 		{
-			if (ww.type == sf::Event::TextEntered)
+			sf::Event w;
+			while (MenuWindow->pollEvent(w))
 			{
-				if (ww.text.unicode < 128)
+				if (w.type == sf::Event::TextEntered)
 				{
-					imie += static_cast<char>(ww.text.unicode);
-					NazwaPlayer.setString("Player name : " + imie);
-					rysowanieImienia();
+					if (w.text.unicode < 128)
+					{
+						imie += static_cast<char>(w.text.unicode);
+						NazwaPlayer.setString("Player name : " + imie);
+					}
 				}
-			}
-			else if (ww.type == sf::Event::KeyPressed)
-			{
-				if (ww.key.code == sf::Keyboard::Enter)
+				else if (w.type == sf::Event::KeyPressed)
 				{
-					wprowadzaneimie++;
-					MenuWindow->close();
-					StartGame();
+					if (w.key.code == sf::Keyboard::Enter)
+					{
+						wprowadzaneimie = false;
 
+					}
 				}
+				rysowanieImienia();
 			}
 		}
-	}
-
-
+		MenuWindow->close();
+		Gracze[ilePlayer-1].Name=imie;
+		StartGame();
 }
 
 void Game::rysowanieImienia()
 {
-	RenderMenuTexture->clear(sf::Color::Black);
+	MenuWindow->clear();
 	MenuWindow->draw(Menusprite);
-	while (MenuWindow->isOpen())
-	{
-		RenderMenuTexture->clear(sf::Color::Black);
-		MenuWindow->draw(Menusprite);
-		MenuWindow->draw(NazwaPlayer);
-		MenuWindow->display();
-	}
-}
+	MenuWindow->draw(NazwaPlayer);
 
+	MenuWindow->display();
+
+}
 
 ///TWORZENIE OKNA GRY I FUNKCJA ODPALANIA GRYI PRZEGRANIA I WYGRANIA
 void Game::initGameWindow()
@@ -494,6 +650,7 @@ void Game::initGameWindow()
 			GameMenuSprite.setPosition(300, 300);
 			GameMenuSprite.scale(2, 2);
 
+			initanimacion();
 
 			if (!znaczekT.loadFromFile("znaczekspace.png"))
 			{
@@ -523,7 +680,7 @@ void Game::initGameWindow()
 				std::cerr << "FAILED LOADING" << std::endl;
 			}
 			GameOverS.setTexture(GameOverT, true);
-			GameOverS.setPosition(270, 90);
+			GameOverS.setPosition(270, 200);
 			GameOverS.scale(0.75, 0.75);
 
 			if (!winT.loadFromFile("Win.png"))
@@ -590,7 +747,12 @@ void Game::StartGame()
 
 		render();
 		if (Health == 0)
+		{
+			
 			GameOver();
+
+		}
+			
 		else if (Health > 0 && ileSpawnedEnemy == 0 && enemy.getEnemy().size() == 0)
 			WinGame();
 
@@ -600,6 +762,43 @@ void Game::StartGame()
 	}
 	
 }
+
+
+void Game::initanimacion()
+{
+	std::string  filename;
+
+	for (int i = 1; i < 9; i++)
+	{
+
+		filename = "wybuch" + std::to_string(i) + ".png";
+		if (!WybuchT[i - 1].loadFromFile(filename))
+		{
+			std::cerr << "FAILED LOADING" << std::endl;
+		}
+
+		
+	}
+
+}
+
+void Game::animacja(sf::Sprite gracz)
+{
+	if (ktora_animacja < 8)
+	{
+		if (Czas.getElapsedTime().asSeconds() > ilosc_klatek)
+		{
+			WybuchS.setTexture(WybuchT[ktora_animacja], true);
+			WybuchS.scale(1.0f, 1.0f);
+			WybuchS.setPosition(gracz.getPosition().x, gracz.getPosition().y);
+			Czas.restart();
+			ktora_animacja=ktora_animacja+1;
+		}
+	}
+	
+	
+}
+
 
 ///MENU W TRAKCIE GRY
 
@@ -696,6 +895,8 @@ void Game::stop3()
 		this->GameMenu->close();
 		this->GameWindow->close();
 		wstrzymana = false;
+		Gracze[ilePlayer-1].IlePunktow = Points;
+		zapisPlayer();
 		resetowanieUstawien();
 		initMenuWindow();
 		mainMenuShowing();
@@ -718,7 +919,7 @@ void Game::GameOver()
 	for (int i = 0; i < 2; ++i) {
 		this->OVER[i].setFont(font);
 		this->OVER[i].setCharacterSize(18);
-		this->OVER[i].setPosition( 220.0f + i * 300.0f,400.f);
+		this->OVER[i].setPosition( 220.0f + i * 300.0f,500.f);
 		this->OVER[i].setFillColor(sf::Color::White);
 	}
 	while (GameWindow->isOpen())
@@ -749,6 +950,9 @@ void Game::GameOver()
 
 		
 		render();
+		animacja(player.GetPlayer());
+		if(ktora_animacja<8)
+			GameWindow->draw(WybuchS);
 		
 		GameWindow->draw(GameOverS);
 		for (int i = 0; i < 2; ++i)
@@ -796,6 +1000,8 @@ void Game::over3()
 	{
 	case 0:
 		this->GameWindow->close();
+		Gracze[ilePlayer-1].IlePunktow = Points;
+		zapisPlayer();
 		resetowanieUstawien();
 		player.setPlayerPosition();
 		this->initMenuWindow();
@@ -877,4 +1083,5 @@ Game::~Game()
 	delete this->RenderMenuTexture;
 	delete this->GameWindow;
 	delete this->RenderGameTexture;
+	delete this->WybuchT;
 }

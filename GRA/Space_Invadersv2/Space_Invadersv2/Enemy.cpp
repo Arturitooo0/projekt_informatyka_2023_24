@@ -3,6 +3,7 @@
 Enemy::Enemy()
 {
 	this->initEnemys();
+	
 }
 
 Enemy::~Enemy()
@@ -12,8 +13,6 @@ Enemy::~Enemy()
 
 void Enemy::initEnemys()
 {
-	this->SpawnedEnemys.clear();
-	this->EnemySprites.clear();
 
 	std::string  filename;
 
@@ -33,6 +32,7 @@ void Enemy::initEnemys()
 	}
 }
 
+///ANIMCAJA
 
 void Enemy::SpawnEnemy(float x)
 {

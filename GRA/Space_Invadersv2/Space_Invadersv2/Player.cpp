@@ -24,7 +24,6 @@ sf::Vector2f Player::GetPlayerPosition()
 	return sf::Vector2f(PlayerSprite.getPosition().x+35, PlayerSprite.getPosition().y);
 }
 
-
 sf::Sprite Player::GetPlayer()
 {
 	return sf::Sprite(PlayerSprite);
@@ -65,7 +64,7 @@ void Player::PoruszaniePlayer()
 			PlayerSprite.move(0, speed);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && recoil==0)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && recoil==0)
 	{
 		
 		Bullet pocisk(GetPlayerPosition());
@@ -75,7 +74,6 @@ void Player::PoruszaniePlayer()
 	}
 	
 }
-
 
 void Player::setPlayerPosition()
 {

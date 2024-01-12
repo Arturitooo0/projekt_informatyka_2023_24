@@ -10,6 +10,9 @@ private:
 	sf::Sprite PlayerSprite;
 	//SPEED
 	float speed = 14;
+
+
+	
 public:
 	Player();
 	~Player();
@@ -23,6 +26,7 @@ public:
 	std::vector<Bullet> ShotedBullet;
 	void renderPlayer(sf::RenderWindow* window);
 	void initPlayer();
+	
 	void PoruszaniePlayer();
 
 };

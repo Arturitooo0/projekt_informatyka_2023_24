@@ -5,14 +5,27 @@
 #include <time.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <fstream>
 #include "Player.h"
+
+
+
+struct zapisywanie
+{
+	std::string Name;
+	int IlePunktow;
+
+};
 
 class Game
 {
 private:
+
 	/// O OKNIE GRY
 	sf::Text NazwaPlayer;
 	std::string imie;
+	bool wprowadzaneimie;
+	int ilePlayer=0 ;
 
 	sf::RenderWindow* GameWindow;
 	sf::RenderTexture* RenderGameTexture;
@@ -36,7 +49,15 @@ private:
 	sf::Text Gamemenu[2];
 	sf::Texture GameMenuTexture;
 	sf::Sprite GameMenuSprite;
+	
 
+	///ANIMACJA WYBUCHU
+	sf::Texture* WybuchT = new sf::Texture[8];
+	sf::Sprite WybuchS;
+	const float ilosc_klatek = 0.1f;
+	int ktora_animacja=0;
+	sf::Clock Czas;
+	
 
 	//PUNKTY
 	int Points=0;
@@ -57,12 +78,31 @@ private:
 	int ileSpawnedEnemy = 60;
 
 
+	///Lista Wynikow
+	zapisywanie* Gracze = new zapisywanie[1]; 
+	std::vector<std::string> Nazwy;
+	std::vector<int> Punkty;
+	sf::Text Imiona[5];
+	sf::Text PunktyGraczy[5];
+	sf::Text SaveTexts[3];
+	
 
 	/// O ENEMYS
 	Enemy enemy;
 
 
-	/// O MENU GLOWNYM
+	/// O MENU GLOWNYM I GWIAZDKA
+
+	sf::ConvexShape gwiazdka;
+	int liczbaWierzcho³ków = 6;
+	sf::ConvexShape tablicaGwiazd[5];
+	float katWewn = 20.f;
+	float katzwene = 50.f;
+	float kat;
+	float x, y;
+	float katRamienia;
+
+
 	sf::RenderWindow* MenuWindow;
 	sf::RenderTexture* RenderMenuTexture;
 	sf::Texture MenuTexture;
@@ -106,6 +146,10 @@ public:
 	virtual ~Game();
 	
 
+	void zapisPlayer();
+	void odzczytPlayer();
+	zapisywanie* zwiekszTablice(zapisywanie* staraTablica);
+
 	void stop();
 	void stop1(const sf::Event::KeyEvent& keyEvent);
 	void stop2(int direction);
@@ -136,6 +180,8 @@ public:
 	void GamePollEvents();
 
 	///MENU GLOWNE I JEGO KONSTRUKCJA
+	void gwiazda();
+
 	void initMenuWindow();
 	void mainMenuShowing();
 	void ReczneWybieranieOpcji_1(const sf::Event::KeyEvent& keyEvent);
@@ -150,6 +196,10 @@ public:
 
 	void resetowanieUstawien();
 
+	void animacja(sf::Sprite gracz);
+	void initanimacion();
+	
+
 	///RYSOWANIE
 	void renderHealth();
 
@@ -163,4 +213,8 @@ public:
 	
 
 };
+
+
+
+
 

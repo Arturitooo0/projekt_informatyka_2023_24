@@ -13,6 +13,7 @@ private:
 	int type;
 	float x;
 	
+	
 	float EnemySpeed;
 	int maxEnemy ;
 
@@ -24,6 +25,7 @@ public:
 	std::vector<sf::Sprite> &getEnemy();
 	void RenderEnemy(sf::RenderWindow* window);
 	void initEnemys();
+	
 	void SpawnEnemy(float x);
 	void PoruszanieEnemy(int poziom_trudnosci,int *ilespawnedenemy, int *Points, int *Health,sf::Sprite Player);
 };
